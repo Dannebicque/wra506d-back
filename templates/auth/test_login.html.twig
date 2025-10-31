@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Test JWT - Login</title>
+    <style>
+        body{font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif; margin:2rem; color:#111}
+        form{max-width:440px; padding:1rem; border:1px solid #ddd; border-radius:12px}
+        label{display:block; margin:.5rem 0 .25rem}
+        input[type="email"],input[type="password"]{width:100%; padding:.6rem .7rem; border:1px solid #ccc; border-radius:8px}
+        button{margin-top:1rem; padding:.6rem 1rem; border:0; border-radius:8px; background:#111; color:#fff; cursor:pointer}
+        .error{color:#a00; margin:.75rem 0}
+        .box{margin-top:1rem; padding:1rem; border:1px dashed #bbb; border-radius:8px; background:#fafafa}
+        textarea{width:100%; min-height:120px; font-family:ui-monospace,SFMono-Regular,Consolas,Monaco,monospace}
+        code{background:#f4f4f4; padding:.15rem .35rem; border-radius:6px}
+        .row{display:flex; gap:.5rem; align-items:center}
+    </style>
+</head>
+<body>
+<h1>Obtenir un JWT</h1>
+
+<form action="{{ path('auth_test_login') }}" method="post" novalidate>
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required value="{{ email|e }}"/>
+
+    <label for="password">Mot de passe</label>
+    <input id="password" name="password" type="password" required/>
+
+    <button type="submit">Générer un JWT</button>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+</form>
+
+{% if token %}
+    <div class="box">
+        <h2>Votre Workspace personnel</h2>
+        <p>
+            <a href="{{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/" target="_blank">
+                {{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/
+            </a>
+        </p>
+        <h2>Votre token JWT</h2>
+        <div class="row">
+            <button type="button" id="copyBtn">Copier</button>
+            <small>(valable selon la config LexikJWT)</small>
+        </div>
+        <textarea id="jwt" readonly>{{ token }}</textarea>
+
+        <h3>Exemples d’utilisation</h3>
+        <p>cURL&nbsp;:</p>
+        <pre><code>curl -H "Authorization: Bearer {{ token }}" \
+  {{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/publications</code></pre>
+
+        <p>HTTP header&nbsp;:</p>
+        <pre><code>Authorization: Bearer {{ token }}</code></pre>
+    </div>
+    <script>
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const ta = document.getElementById('jwt');
+            ta.select();
+            ta.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(ta.value);
+        });
+    </script>
+{% endif %}
+</body>
+</html>
