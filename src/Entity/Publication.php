@@ -15,42 +15,110 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: PublicationRepository::class)]
-#[ORM\Index(columns: ['workspace_id','created_at'])]
-#[ApiResource(operations: [
-    new GetCollection(uriTemplate: '/{slug}/publications', security: "is_granted('ROLE_USER')"),
-    new Get(uriTemplate: '/{slug}/publications/{id}', security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()", uriVariables: ['id']),
-    new Post(uriTemplate: '/{slug}/publications', securityPostDenormalize: "is_granted('ROLE_USER')", processor: \App\State\PublicationProcessor::class),
-    new Patch(uriTemplate: '/{slug}/publications/{id}', securityPostDenormalize: "is_granted('ROLE_USER')", uriVariables: ['id']),
-    new Delete(uriTemplate: '/{slug}/publications/{id}', security: "is_granted('ROLE_USER')", uriVariables: ['id']),
+#[ApiResource(
+    normalizationContext: ['groups' => ['publication:read']],
+    denormalizationContext: ['groups' => ['publication:write']],
+    operations: [
+    new GetCollection(
+        uriTemplate: '/{slug}/publications',
+        uriVariables: [
+            // "slug" n'est pas un identifiant de Publication, on le mappe via Workspace.slug
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'publications'
+            ),
+        ],
+        security: "is_granted('ROLE_USER')"
+    ),
+    new Get(
+        uriTemplate: '/{slug}/publications/{id}',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'publications'
+            ),
+            'id'   => new Link(fromClass: Publication::class, identifiers: ['id']),
+        ],
+        security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()"
+    ),
+    new Post(
+        uriTemplate: '/{slug}/publications',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'publications'
+            ),
+        ],
+        read: false,
+        securityPostDenormalize: "is_granted('ROLE_USER')",
+        processor: PublicationProcessor::class
+    ),
+    new Patch(
+        uriTemplate: '/{slug}/publications/{id}',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'publications'
+            ),
+            'id'   => new Link(fromClass: Publication::class, identifiers: ['id']),
+        ],
+        securityPostDenormalize: "is_granted('ROLE_USER')",
+        processor: PublicationProcessor::class
+    ),
+    new Delete(
+        uriTemplate: '/{slug}/publications/{id}',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'publications'
+            ),
+            'id'   => new Link(fromClass: Publication::class, identifiers: ['id']),
+        ],
+        security: "is_granted('ROLE_USER')"
+    ),
 ])]
 class Publication
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['publication:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'publications')]
+    #[Groups(['publication:read'])]
     private ?Workspace $workspace = null;
 
     #[ORM\ManyToOne(inversedBy: 'publications')]
+    #[Groups(['publication:read'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'publications')]
+    #[Groups(['publication:read', 'publication:write'])]
     private ?Channel $channel = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['publication:read', 'publication:write'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['publication:read', 'publication:write'])]
     private ?string $body = null;
 
     #[ORM\Column]
+    #[Groups(['publication:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['publication:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
@@ -76,6 +144,9 @@ class Publication
         $this->comments = new ArrayCollection();
         $this->reactions = new ArrayCollection();
         $this->media = new ArrayCollection();
+
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -255,5 +326,10 @@ class Publication
         }
 
         return $this;
+    }
+
+    public function setId(null $null)
+    {
+        $this->id = $null;
     }
 }

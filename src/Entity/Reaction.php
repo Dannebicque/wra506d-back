@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Repository\ReactionRepository;
 use App\State\ReactionProcessor;
@@ -13,16 +14,35 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ReactionRepository::class)]
 #[ORM\UniqueConstraint(
     name: 'uniq_pub_user_type',
-    columns: ['publication_id','author_id','type']
+    columns: ['publication_id', 'author_id', 'type']
 )]
 #[ORM\UniqueConstraint(
     name: 'uniq_comment_user_type',
-    columns: ['comment_id','author_id','type']
+    columns: ['comment_id', 'author_id', 'type']
 )]
 #[ApiResource(operations: [
-    new GetCollection(uriTemplate: '/{slug}/reactions', security: "is_granted('ROLE_USER')"),
-    new Post(uriTemplate: '/{slug}/reactions', securityPostDenormalize: "is_granted('ROLE_USER')", processor: \App\State\ReactionProcessor::class),
-    new Delete(uriTemplate: '/{slug}/reactions/{id}', security: "is_granted('ROLE_USER')", uriVariables: ['id']),
+    new GetCollection(uriTemplate: '/{slug}/reactions', security: "is_granted('ROLE_USER')", uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'reactions'
+        ),
+    ],),
+    new Post(uriTemplate: '/{slug}/reactions', securityPostDenormalize: "is_granted('ROLE_USER')", processor: ReactionProcessor::class, uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'reactions'
+        ),
+    ],),
+    new Delete(uriTemplate: '/{slug}/reactions/{id}', security: "is_granted('ROLE_USER')", uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'reactions'
+        ),
+        'id' => new Link(fromClass: Reaction::class, identifiers: ['id']),
+    ],),
 ])]
 class Reaction
 {

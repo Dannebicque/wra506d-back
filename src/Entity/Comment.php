@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\CommentRepository;
@@ -18,11 +19,65 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 #[ORM\Index(columns: ['workspace_id','created_at'])]
 #[ApiResource(operations: [
-    new GetCollection(uriTemplate: '/{slug}/comments', security: "is_granted('ROLE_USER')"),
-    new Get(uriTemplate: '/{slug}/comments/{id}', security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()", uriVariables: ['id']),
-    new Post(uriTemplate: '/{slug}/comments', securityPostDenormalize: "is_granted('ROLE_USER')", processor: \App\State\CommentProcessor::class),
-    new Patch(uriTemplate: '/{slug}/comments/{id}', securityPostDenormalize: "is_granted('ROLE_USER')", uriVariables: ['id']),
-    new Delete(uriTemplate: '/{slug}/comments/{id}', security: "is_granted('ROLE_USER')", uriVariables: ['id']),
+    new GetCollection(
+        uriTemplate: '/{slug}/comments',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'comments'
+            ),
+        ],
+        security: "is_granted('ROLE_USER')"
+    ),
+    new Get(
+        uriTemplate: '/{slug}/comments/{id}',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'comments'
+            ),
+            'id'   => new Link(fromClass: Comment::class, identifiers: ['id']),
+        ],
+        security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()"
+    ),
+    new Post(
+        uriTemplate: '/{slug}/comments',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'comments'
+            ),
+        ],
+        securityPostDenormalize: "is_granted('ROLE_USER')",
+        processor: \App\State\CommentProcessor::class
+    ),
+    new Patch(
+        uriTemplate: '/{slug}/comments/{id}',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'comments'
+            ),
+            'id'   => new Link(fromClass: Comment::class, identifiers: ['id']),
+        ],
+        securityPostDenormalize: "is_granted('ROLE_USER')"
+    ),
+    new Delete(
+        uriTemplate: '/{slug}/comments/{id}',
+        uriVariables: [
+            'slug' => new Link(
+                fromClass: Workspace::class,
+                identifiers: ['slug'],
+                fromProperty: 'comments'
+            ),
+            'id'   => new Link(fromClass: Comment::class, identifiers: ['id']),
+        ],
+        security: "is_granted('ROLE_USER')"
+    ),
 ])]
 class Comment
 {

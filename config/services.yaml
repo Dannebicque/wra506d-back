@@ -15,6 +15,11 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
@@ -26,3 +31,22 @@ services:
             - '@logger'
         autowire: true
         autoconfigure: true
+
+#    App\State\ChannelProcessor:
+#        decorates: 'api_platform.doctrine.orm.state.persist_processor'
+#        arguments:
+#            - '@App\State\ChannelProcessor.inner'
+#            - '@App\Context\CurrentWorkspace'
+#            - '@App\Repository\ChannelRepository'
+#            - '@doctrine.orm.entity_manager'
+#        autowire: true
+#        autoconfigure: true
+#
+#    App\State\PublicationProcessor:
+#        decorates: 'api_platform.doctrine.orm.state.persist_processor'
+#        arguments:
+#            - '@App\State\PublicationProcessor.inner'
+#            - '@App\Context\CurrentWorkspace'
+#            - '@App\Repository\PublicationRepository'
+#            - '@doctrine.orm.entity_manager'
+#            - '@security.token_storage'

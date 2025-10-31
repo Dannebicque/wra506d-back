@@ -6,9 +6,9 @@
     <title>Test JWT - Login</title>
     <style>
         body{font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial,sans-serif; margin:2rem; color:#111}
-        form{max-width:440px; padding:1rem; border:1px solid #ddd; border-radius:12px}
+        form{max-width:500px; padding:1rem; border:1px solid #ddd; border-radius:12px}
         label{display:block; margin:.5rem 0 .25rem}
-        input[type="email"],input[type="password"]{width:100%; padding:.6rem .7rem; border:1px solid #ccc; border-radius:8px}
+        input[type="email"],input[type="password"]{width:90%; padding:.6rem .7rem; border:1px solid #ccc; border-radius:8px}
         button{margin-top:1rem; padding:.6rem 1rem; border:0; border-radius:8px; background:#111; color:#fff; cursor:pointer}
         .error{color:#a00; margin:.75rem 0}
         .box{margin-top:1rem; padding:1rem; border:1px dashed #bbb; border-radius:8px; background:#fafafa}
@@ -51,11 +51,12 @@
 
         <h3>Exemples d’utilisation</h3>
         <p>cURL&nbsp;:</p>
-        <pre><code>curl -H "Authorization: Bearer {{ token }}" \
-  {{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/publications</code></pre>
+        <textarea id="curl" readonly>curl -H "Authorization: Bearer {{ token }}" \
+  {{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/publications</textarea>
+
 
         <p>HTTP header&nbsp;:</p>
-        <pre><code>Authorization: Bearer {{ token }}</code></pre>
+        <textarea id="http" readonly>Authorization: Bearer {{ token }}</textarea>
     </div>
     <script>
         document.getElementById('copyBtn').addEventListener('click', () => {

@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AuthTestController extends AbstractController
 {
-    #[Route('/auth/test-login', name: 'auth_test_login', methods: ['GET', 'POST'])]
+    #[Route('/', name: 'auth_test_login', methods: ['GET', 'POST'])]
     public function __invoke(
         Request                     $request,
         UserRepository              $users,

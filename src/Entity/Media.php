@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Repository\MediaRepository;
 use App\State\MediaProcessor;
@@ -15,10 +16,36 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ApiResource(operations: [
-    new GetCollection(uriTemplate: '/{slug}/media', security: "is_granted('ROLE_USER')"),
-    new Get(uriTemplate: '/{slug}/media/{id}', security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()", uriVariables: ['id']),
-    new Post(uriTemplate: '/{slug}/media', securityPostDenormalize: "is_granted('ROLE_USER')", processor: \App\State\MediaProcessor::class),
-    new Delete(uriTemplate: '/{slug}/media/{id}', security: "is_granted('ROLE_USER')", uriVariables: ['id']),
+    new GetCollection(uriTemplate: '/{slug}/media', security: "is_granted('ROLE_USER')", uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'media'
+        ),
+    ],),
+    new Get(uriTemplate: '/{slug}/media/{id}', security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()", uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'media'
+        ),
+        'id' => new Link(fromClass: Media::class, identifiers: ['id']),
+    ],),
+    new Post(uriTemplate: '/{slug}/media', securityPostDenormalize: "is_granted('ROLE_USER')", processor: MediaProcessor::class, uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'media'
+        ),
+    ],),
+    new Delete(uriTemplate: '/{slug}/media/{id}', security: "is_granted('ROLE_USER')", uriVariables: [
+        'slug' => new Link(
+            fromClass: Workspace::class,
+            identifiers: ['slug'],
+            fromProperty: 'comments'
+        ),
+        'id' => new Link(fromClass: Media::class, identifiers: ['id']),
+    ])
 ])]
 class Media
 {
@@ -56,6 +83,9 @@ class Media
      */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'avatar')]
     private Collection $users;
+
+    #[ORM\ManyToOne(inversedBy: 'media')]
+    private ?Workspace $workspace = null;
 
     public function __construct()
     {
@@ -189,6 +219,18 @@ class Media
                 $user->setAvatar(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getWorkspace(): ?Workspace
+    {
+        return $this->workspace;
+    }
+
+    public function setWorkspace(?Workspace $workspace): static
+    {
+        $this->workspace = $workspace;
 
         return $this;
     }

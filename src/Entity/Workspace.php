@@ -52,6 +52,12 @@ class Workspace
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'workspace')]
     private Collection $users;
 
+    /**
+     * @var Collection<int, Media>
+     */
+    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'workspace')]
+    private Collection $media;
+
     public function __construct()
     {
         $this->channels = new ArrayCollection();
@@ -59,6 +65,7 @@ class Workspace
         $this->comments = new ArrayCollection();
         $this->reactions = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->media = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,6 +249,36 @@ class Workspace
             // set the owning side to null (unless already changed)
             if ($user->getWorkspace() === $this) {
                 $user->setWorkspace(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Media>
+     */
+    public function getMedia(): Collection
+    {
+        return $this->media;
+    }
+
+    public function addMedium(Media $medium): static
+    {
+        if (!$this->media->contains($medium)) {
+            $this->media->add($medium);
+            $medium->setWorkspace($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMedium(Media $medium): static
+    {
+        if ($this->media->removeElement($medium)) {
+            // set the owning side to null (unless already changed)
+            if ($medium->getWorkspace() === $this) {
+                $medium->setWorkspace(null);
             }
         }
 

@@ -28,13 +28,13 @@ final class IriConverter implements IriConverterInterface
     }
 
     public function getIriFromResource(
-        object|string $resourceClass,
+        object|string $resource,
         int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH,
         Operation $operation = null,
         array $context = []
     ): string {
         $this->ensureSlug($context);
-        return $this->decorated->getIriFromResource($resourceClass, $referenceType, $operation, $context);
+        return $this->decorated->getIriFromResource($resource, $referenceType, $operation, $context);
     }
 
     public function getIriFromResourceItem(

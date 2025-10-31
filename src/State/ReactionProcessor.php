@@ -12,7 +12,7 @@ final class ReactionProcessor implements ProcessorInterface
 {
     public function __construct(private CurrentWorkspace $ctx, private Security $security) {}
 
-    public function process($data, Operation $op, array $uriVars = [], array $context = [])
+    public function process($data, Operation $operation, array $uriUriVariables = [], array $context = [])
     {
         if (!$data instanceof Reaction) return $data;
 
