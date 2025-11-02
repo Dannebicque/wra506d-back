@@ -67,39 +67,6 @@ final class PublicationProcessor implements ProcessorInterface
 
         return $this->persist->process($data, $operation, $uriVariables, $context);
     }
-
-//    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
-//    {
-//        if (!$data instanceof Publication) {
-//            return $this->persist->process($data, $operation, $uriVariables, $context);
-//        }
-//
-//        // === GARDE-FOU : si c'est un POST, on force un INSERT ===
-//        if (strtoupper($operation->getMethod() ?? 'POST') === 'POST') {
-//            $data->setId(null);
-//        }
-//        // =========================================================
-//
-//        //dump(['before',$data->getId(), 'op'=>$operation->getName()]);
-//        // workspace depuis {slug}
-//        if ($ws = $this->currentWorkspace->get()) {
-//            $data->setWorkspace($ws);
-//        }
-//
-//        // auteur si besoin
-//        if (method_exists($data, 'setAuthor') && ($u = $this->security->getUser())) {
-//            $data->setAuthor($u);
-//        }
-//
-//        $now = new \DateTimeImmutable();
-//        if (null === $data->getCreatedAt()) {
-//            $data->setCreatedAt($now);
-//        }
-//        $data->setUpdatedAt($now);
-//
-//        // surtout: ne pas charger/remplacer $data par un existant, ne pas toucher à l'id
-//        return $this->persist->process($data, $operation, $uriVariables, $context);
-//    }
 }
 
 #
