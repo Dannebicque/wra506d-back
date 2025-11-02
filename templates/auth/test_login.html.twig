@@ -42,6 +42,12 @@
                 {{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/
             </a>
         </p>
+
+        <h2>Code d'intégration (à transmettre pour l'inscription)</h2>
+        <p>
+            <code>{{ ws.joinCode }}</code>
+        </p>
+
         <h2>Votre token JWT</h2>
         <div class="row">
             <button type="button" id="copyBtn">Copier</button>
@@ -53,7 +59,6 @@
         <p>cURL&nbsp;:</p>
         <textarea id="curl" readonly>curl -H "Authorization: Bearer {{ token }}" \
   {{ app.request.schemeAndHttpHost }}/api/{{ ws.slug }}/publications</textarea>
-
 
         <p>HTTP header&nbsp;:</p>
         <textarea id="http" readonly>Authorization: Bearer {{ token }}</textarea>

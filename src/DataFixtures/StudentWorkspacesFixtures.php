@@ -28,6 +28,7 @@ final class StudentWorkspacesFixtures extends Fixture
             $ws->setSlug($slug);
             $ws->setAllowSelfSignup(true);
             $ws->setJoinCodeHash($joinCodeHash);
+            $ws->setJoinCode($joinCodePlain);
             $om->persist($ws);
 
             $user = new User();

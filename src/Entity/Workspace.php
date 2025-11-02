@@ -45,6 +45,7 @@ class Workspace
 
     #[ORM\Column(options: ['default' => false])] private bool $allowSelfSignup = false;
     #[ORM\Column(nullable: true)] private ?string $joinCodeHash = null;
+    #[ORM\Column(nullable: true)] private ?string $joinCode = null;
 
     /**
      * @var Collection<int, User>
@@ -285,5 +286,13 @@ class Workspace
         return $this;
     }
 
+    public function getJoinCode(): ?string
+    {
+        return $this->joinCode;
+    }
 
+    public function setJoinCode(?string $joinCode): void
+    {
+        $this->joinCode = $joinCode;
+    }
 }

@@ -107,6 +107,7 @@ class Channel
      * @var Collection<int, Publication>
      */
     #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'channel')]
+    #[Groups(['channel:read'])]
     private Collection $publications;
 
     public function __construct()
