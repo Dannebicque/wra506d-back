@@ -2,6 +2,8 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Channel;
+use App\Entity\Publication;
 use App\Entity\User;
 use App\Entity\Workspace;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -48,6 +50,23 @@ final class StudentWorkspacesFixtures extends Fixture
             $user->setSetupTokenExpiresAt((new \DateTimeImmutable())->modify('+7 days'));
 
             $om->persist($user);
+
+            // ajout d'un channel et d'une publication dans chaque workspace
+            $ch = new Channel();
+            $ch->setName('Accueil');
+            $ch->setSlug('accueil-'.$slug);;
+            $ch->setWorkspace($ws);
+            $om->persist($ch);
+
+            $pub = new Publication();
+            $pub->setTitle('Bienvenue sur le workspace '.$slug);
+            $pub->setBody('Ceci est un exemple de contenu.');
+            $pub->setChannel($ch);
+            $pub->setWorkspace($ws);
+            $pub->setAuthor($user);
+            $pub->setCreatedAt(new \DateTimeImmutable());
+            $pub->setUpdatedAt(new \DateTimeImmutable());
+            $om->persist($pub);
 
             $rows[] = [
                 'email'        => $email,
