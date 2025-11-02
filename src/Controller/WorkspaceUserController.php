@@ -36,7 +36,6 @@ class WorkspaceUserController extends AbstractController
             'avatar' => $user->getAvatar(),
             'workspace' => [
                 'id' => $workspace->getId(),
-                'name' => $workspace->getName(),
                 'slug' => $workspace->getSlug(),
             ],
         ];
