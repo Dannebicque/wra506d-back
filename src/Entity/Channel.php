@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -18,71 +21,86 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ChannelRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['channel:read']],
-    denormalizationContext: ['groups' => ['channel:write']],
     operations: [
-    new GetCollection(
-        uriTemplate: '/{slug}/channels',
-        uriVariables: [
-            'slug' => new Link(
-                fromClass: Workspace::class,
-                identifiers: ['slug'],
-                fromProperty: 'channels'
-            ),
-        ],
-        security: "is_granted('ROLE_USER')"
-    ),
-    new Get(
-        uriTemplate: '/{slug}/channels/{id}',
-        uriVariables: [
-            'slug' => new Link(
-                fromClass: Workspace::class,
-                identifiers: ['slug'],
-                fromProperty: 'channels'
-            ),
-            'id'   => new Link(fromClass: Channel::class, identifiers: ['id']),
-        ],
-        security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()"
-    ),
-    new Post(
-        uriTemplate: '/{slug}/channels',
-        uriVariables: [
-            'slug' => new Link(
-                fromClass: Workspace::class,
-                identifiers: ['slug'],
-                fromProperty: 'channels'
-            ),
-        ],
-        read: false,
-        processor: ChannelProcessor::class,
-        securityPostDenormalize: "is_granted('ROLE_USER')"
-    ),
-    new Patch(
-        uriTemplate: '/{slug}/channels/{id}',
-        uriVariables: [
-            'slug' => new Link(
-                fromClass: Workspace::class,
-                identifiers: ['slug'],
-                fromProperty: 'channels'
-            ),
-            'id'   => new Link(fromClass: Channel::class, identifiers: ['id']),
-        ],
-        processor: ChannelProcessor::class,
-        securityPostDenormalize: "is_granted('ROLE_USER')",
-    ),
-    new Delete(
-        uriTemplate: '/{slug}/channels/{id}',
-        uriVariables: [
-            'slug' => new Link(
-                fromClass: Workspace::class,
-                identifiers: ['slug'],
-                fromProperty: 'channels'
-            ),
-            'id'   => new Link(fromClass: Channel::class, identifiers: ['id']),
-        ],
-        security: "is_granted('ROLE_USER')"
-    ),
-])]
+        new GetCollection(
+            uriTemplate: '/{slug}/channels',
+            uriVariables: [
+                'slug' => new Link(
+                    fromClass: Workspace::class,
+                    identifiers: ['slug'],
+                    fromProperty: 'channels'
+                ),
+            ],
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Get(
+            uriTemplate: '/{slug}/channels/{channelSlug}',
+            uriVariables: [
+                'slug' => new Link(
+                    fromProperty: 'channels',
+                    fromClass: Workspace::class,
+                    identifiers: ['slug']
+                ),
+                'channelSlug' => new Link(fromClass: Channel::class, identifiers: ['slug']),
+            ],
+            security: "object.getWorkspace() === user.getWorkspace()"
+        ),
+        new Get(
+            uriTemplate: '/{slug}/channels/{id}',
+            uriVariables: [
+                'slug' => new Link(
+                    fromClass: Workspace::class,
+                    identifiers: ['slug'],
+                    fromProperty: 'channels'
+                ),
+                'id' => new Link(fromClass: Channel::class, identifiers: ['id']),
+            ],
+            security: "object.getWorkspace() === user.getWorkspace()"
+        ),
+        new Post(
+            uriTemplate: '/{slug}/channels',
+            uriVariables: [
+                'slug' => new Link(
+                    fromClass: Workspace::class,
+                    identifiers: ['slug'],
+                    fromProperty: 'channels'
+                ),
+            ],
+            read: false,
+            processor: ChannelProcessor::class,
+            securityPostDenormalize: "is_granted('ROLE_USER')"
+        ),
+        new Patch(
+            uriTemplate: '/{slug}/channels/{id}',
+            uriVariables: [
+                'slug' => new Link(
+                    fromClass: Workspace::class,
+                    identifiers: ['slug'],
+                    fromProperty: 'channels'
+                ),
+                'id' => new Link(fromClass: Channel::class, identifiers: ['id']),
+            ],
+            securityPostDenormalize: "is_granted('ROLE_USER')",
+            processor: ChannelProcessor::class,
+        ),
+        new Delete(
+            uriTemplate: '/{slug}/channels/{id}',
+            uriVariables: [
+                'slug' => new Link(
+                    fromProperty: 'channels',
+                    fromClass: Workspace::class,
+                    identifiers: ['slug']
+                ),
+                'id' => new Link(fromClass: Channel::class, identifiers: ['id']),
+            ],
+            security: "is_granted('ROLE_USER')"
+        ),
+    ],
+    normalizationContext: ['groups' => ['channel:read']],
+    denormalizationContext: ['groups' => ['channel:write']])
+]
+#[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]
+#[ApiFilter(OrderFilter::class, properties: ['name' => 'ASC'])]
 class Channel
 {
     #[ORM\Id]
