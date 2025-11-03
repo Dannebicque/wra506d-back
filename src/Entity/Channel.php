@@ -46,7 +46,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: "object.getWorkspace() === user.getWorkspace()"
         ),
         new Get(
-            uriTemplate: '/{slug}/channels/{id}',
+            uriTemplate: '/{slug}/channels/by-id/{id}',
             uriVariables: [
                 'slug' => new Link(
                     fromClass: Workspace::class,
