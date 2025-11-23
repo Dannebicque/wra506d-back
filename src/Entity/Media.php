@@ -13,6 +13,7 @@ use App\State\MediaProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ApiResource(operations: [
@@ -46,42 +47,55 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         'id' => new Link(fromClass: Media::class, identifiers: ['id']),
     ])
-])]
+],
+normalizationContext: ['groups' => ['media:read']],
+denormalizationContext: ['groups' => ['media:write']]
+)]
 class Media
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['media:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'media')]
+    #[Groups(['media:read'])]
     private ?User $author = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['media:read', 'media:write'])]
     private ?string $originalName = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['media:read'])]
     private ?string $mimeType = null;
 
     #[ORM\Column]
+    #[Groups(['media:read'])]
     private ?int $size = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['media:read'])]
     private ?string $path = null;
 
     #[ORM\Column]
+    #[Groups(['media:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'media')]
+    #[Groups(['media:read', 'media:write'])]
     private ?Publication $publication = null;
 
     #[ORM\ManyToOne(inversedBy: 'media')]
+    #[Groups(['media:read', 'media:write'])]
     private ?Comment $comment = null;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'avatar')]
+    #[Groups(['media:read'])]
     private Collection $users;
 
     #[ORM\ManyToOne(inversedBy: 'media')]

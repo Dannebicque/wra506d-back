@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Post;
 use App\Repository\ReactionRepository;
 use App\State\ReactionProcessor;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ReactionRepository::class)]
 #[ORM\UniqueConstraint(
@@ -21,13 +22,13 @@ use Doctrine\ORM\Mapping as ORM;
     columns: ['comment_id', 'author_id', 'type']
 )]
 #[ApiResource(operations: [
-    new GetCollection(uriTemplate: '/{slug}/reactions', security: "is_granted('ROLE_USER')", uriVariables: [
+    new GetCollection(uriTemplate: '/{slug}/reactions', uriVariables: [
         'slug' => new Link(
             fromClass: Workspace::class,
             identifiers: ['slug'],
             fromProperty: 'reactions'
         ),
-    ],),
+    ], security: "is_granted('ROLE_USER')",),
     new Post(uriTemplate: '/{slug}/reactions', securityPostDenormalize: "is_granted('ROLE_USER')", processor: ReactionProcessor::class, uriVariables: [
         'slug' => new Link(
             fromClass: Workspace::class,
@@ -43,30 +44,39 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         'id' => new Link(fromClass: Reaction::class, identifiers: ['id']),
     ],),
-])]
+],
+normalizationContext: ['groups' => ['reaction:read']],
+denormalizationContext: ['groups' => ['reaction:write']]
+)]
 class Reaction
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['reaction:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reactions')]
     private ?Workspace $workspace = null;
 
     #[ORM\Column(length: 20)]
+    #[Groups(['reaction:read', 'reaction:write'])]
     private ?string $type = null;
 
     #[ORM\ManyToOne(inversedBy: 'reactions')]
+    #[Groups(['reaction:read'])]
     private ?User $author = null;
 
     #[ORM\ManyToOne(inversedBy: 'reactions')]
+    #[Groups(['reaction:read', 'reaction:write'])]
     private ?Publication $publication = null;
 
     #[ORM\ManyToOne(inversedBy: 'reactions')]
+    #[Groups(['reaction:read', 'reaction:write'])]
     private ?Comment $comment = null;
 
     #[ORM\Column]
+    #[Groups(['reaction:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int

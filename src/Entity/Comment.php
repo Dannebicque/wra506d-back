@@ -10,14 +10,14 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Repository\CommentRepository;
-use App\State\CommentProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
-#[ORM\Index(columns: ['workspace_id','created_at'])]
+#[ORM\Index(columns: ['workspace_id', 'created_at'])]
 #[ApiResource(operations: [
     new GetCollection(
         uriTemplate: '/{slug}/comments',
@@ -38,7 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
                 identifiers: ['slug'],
                 fromProperty: 'comments'
             ),
-            'id'   => new Link(fromClass: Comment::class, identifiers: ['id']),
+            'id' => new Link(fromClass: Comment::class, identifiers: ['id']),
         ],
         security: "object.getWorkspace() === service('App\\Context\\CurrentWorkspace').get()"
     ),
@@ -62,7 +62,7 @@ use Doctrine\ORM\Mapping as ORM;
                 identifiers: ['slug'],
                 fromProperty: 'comments'
             ),
-            'id'   => new Link(fromClass: Comment::class, identifiers: ['id']),
+            'id' => new Link(fromClass: Comment::class, identifiers: ['id']),
         ],
         securityPostDenormalize: "is_granted('ROLE_USER')"
     ),
@@ -74,46 +74,57 @@ use Doctrine\ORM\Mapping as ORM;
                 identifiers: ['slug'],
                 fromProperty: 'comments'
             ),
-            'id'   => new Link(fromClass: Comment::class, identifiers: ['id']),
+            'id' => new Link(fromClass: Comment::class, identifiers: ['id']),
         ],
         security: "is_granted('ROLE_USER')"
     ),
-])]
+],
+    normalizationContext: ['groups' => ['comment:read']],
+    denormalizationContext: ['groups' => ['comment:write']]
+)]
 class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['comment:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
     private ?Workspace $workspace = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[Groups(['comment:read', 'comment:write'])]
     private ?Publication $publication = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
+    #[Groups(['comment:read'])]
     private ?User $author = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['comment:read', 'comment:write'])]
     private ?string $body = null;
 
     #[ORM\Column]
+    #[Groups(['comment:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['comment:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @var Collection<int, Reaction>
      */
     #[ORM\OneToMany(targetEntity: Reaction::class, mappedBy: 'comment')]
+    #[Groups(['comment:read'])]
     private Collection $reactions;
 
     /**
      * @var Collection<int, Media>
      */
     #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'comment')]
+    #[Groups(['comment:read'])]
     private Collection $media;
 
     public function __construct()
