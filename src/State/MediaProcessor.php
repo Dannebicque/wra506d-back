@@ -8,6 +8,7 @@ use App\Context\CurrentWorkspace;
 use App\Entity\Media;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class MediaProcessor implements ProcessorInterface
 {
