@@ -22,7 +22,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
         bind:
-            uploadDir: '%uploads_dir%'
+            $uploadDir: '%uploads_dir%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
