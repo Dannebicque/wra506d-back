@@ -13,6 +13,7 @@ use App\State\MediaProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
@@ -90,6 +91,9 @@ class Media
     #[ORM\ManyToOne(inversedBy: 'media')]
     #[Groups(['media:read', 'media:write'])]
     private ?Comment $comment = null;
+
+    #[Groups(['media:write'])]
+    private ?UploadedFile $file = null;
 
     /**
      * @var Collection<int, User>
@@ -246,6 +250,17 @@ class Media
     {
         $this->workspace = $workspace;
 
+        return $this;
+    }
+
+    public function getFile(): ?UploadedFile
+    {
+        return $this->file;
+    }
+
+    public function setFile(?UploadedFile $file): self
+    {
+        $this->file = $file;
         return $this;
     }
 }
