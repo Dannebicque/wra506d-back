@@ -33,7 +33,7 @@ services:
         autowire: true
         autoconfigure: true
         bind:
-            $uploadDir: '%uploads_dir%'
+            uploadDir: '%uploads_dir%'
 
 #    App\State\ChannelProcessor:
 #        decorates: 'api_platform.doctrine.orm.state.persist_processor'
