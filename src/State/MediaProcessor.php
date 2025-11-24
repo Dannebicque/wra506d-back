@@ -10,21 +10,22 @@ use App\Entity\Media;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final class MediaProcessor implements ProcessorInterface
 {
     public function __construct(
+        private RequestStack $requestStack,
         private CurrentWorkspace $ctx,
         private EntityManagerInterface $em,
         private IriConverterInterface $iriConverter,
         private Security         $security,
         private string           $uploadDir, // ex: '%kernel.project_dir%/public/uploads'
-        private SluggerInterface $slugger)
+        )
     {
     }
 
-    public function process($data, Operation $operation, array $uriUriVariables = [], array $context = [])
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = [])
     {
         $ws = $this->ctx->get();
         $request = $this->requestStack->getCurrentRequest();
