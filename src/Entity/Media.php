@@ -33,7 +33,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
         ),
         'id' => new Link(fromClass: Media::class, identifiers: ['id']),
     ],),
-    new Post(uriTemplate: '/{slug}/media', securityPostDenormalize: "is_granted('ROLE_USER')", processor: MediaProcessor::class,
+    new Post(uriTemplate: '/{slug}/media', securityPostDenormalize: "is_granted('ROLE_USER')",
+        deserialize: false,
+        processor: MediaProcessor::class,
         uriVariables: [
         'slug' => new Link(
             fromClass: Workspace::class,
